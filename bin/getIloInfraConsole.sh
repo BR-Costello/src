@@ -27,25 +27,27 @@
 #
 #
 # 	Example showing automation for accessing a server over ssh into a remote management host and then into the ilo of 
-# 	   the machine when networking is offline
-# 	   If it is able to access the console, it will try to use the console password, obtained from the vault service 
+# 	   the machine when networking is offline, side channel
+# 	   If it is able to access the ilo, it will try to use the console password, obtained from the vault service 
 # 	   and it will drop you into an interactive root shell.
 # 	   If the parameters are correct, this should succeed, however it requires extensive customization with respect
 # 	   to the particular environment. In other words, DO NOT EXECUTE ON PRODUCTION!!
-# 	   Do not execute until you have a good idea what the code does.
+# 	   Also, do not execute until you have a good idea what the code does.
 #
 #	This script will try to log into the Lights Out Management (LOM) interface of a host using vault passwords
 #	   and if that is successful, it will attempt to log you into the console using the vault password for the console
 #	   providing an interactive shell to the user.
 #	   In both authn cases, it will try "default" passwords as provided from the vault.
-#	   For the LOM it will also try the factory default, to assist with recent MOBO replacements.
+#	   For the LOM it will also try the factory default, ie. to assist with recent MOBO replacements.
 #
 #	Use this, for example, when a server crashes and is not accessible via normal network traffic, it will automate
 #	   authentication processes via lights out management interfaces allowing for very fast remediation.
 #
-#	Prerequisites for the management server: bash4, Expect (tcl), ssh 
+#	It does not display any passwords on the command line
+#
+#	Prerequisites for the management server: bash4, Expect (tcl), ssh with connectivity to the management host's lights out management
 #          Expect is usually distributed with RHEL, BSD-like environments, Solaris, Darwin 
-#	   local ssh: .config file with ssh through a bastion to a regional management host
+#	   local ssh: .config file with automatic ssh through a bastion and into a regional management host
 #
 #       I have an example written in python as well, but this method has shown better reliability
 #
