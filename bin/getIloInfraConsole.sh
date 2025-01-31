@@ -1,18 +1,20 @@
 #!/bin/bash 
-# 
-# BSD 2-Clause License
-#
+#   
 # Copyright (c) 2025, BR-Costello brianspm@jbrcostello.com
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 # 
 # 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-# 
+#   list of conditions and the following disclaimer.
+#
 # 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -25,8 +27,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-#
-# 	Example showing automation for accessing a server over ssh into a remote management host and then into the ilo of 
+# 	An example showing automation for accessing a server over ssh into a remote management host and then into the ilo of 
 # 	   the machine when networking is offline, side channel
 # 	   If it is able to access the ilo, it will try to use the console password, obtained from the vault service 
 # 	   and it will drop you into an interactive root shell.
@@ -47,7 +48,7 @@
 #
 #	Prerequisites for the management server: bash4, Expect (tcl), ssh with connectivity to the management host's lights out management
 #          Expect is usually distributed with RHEL, BSD-like environments, Solaris, Darwin 
-#	   local ssh: .config file with automatic ssh through a bastion and into a regional management host
+#	   local ssh: ~/.ssh/config file with automatic ssh through a bastion and into a regional management host
 #
 #       I have an example written in python as well, but this method has shown better reliability
 #
