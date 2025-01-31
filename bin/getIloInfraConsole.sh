@@ -1,5 +1,7 @@
 #!/bin/bash 
 #   
+# BSD 3-Clause License
+#
 # Copyright (c) 2025, BR-Costello brianspm@jbrcostello.com
 #
 # Redistribution and use in source and binary forms, with or without
