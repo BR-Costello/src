@@ -86,7 +86,7 @@ function iloTryToGetConsole() {
   local regionAD=${myTarget:0:4}
 
   # The long command below pipes the expect code into the endpoint and executes it there
-  ssh -t ${regionAD}ecsmgmt1 "sudo -u root -- sh -c 'cd; NODE=${myTarget}; LOM=${myTarget/\./lo.}; SHORTNODE=${myTarget/.*/}
+  ssh -t ${regionAD}mgmt "sudo -u root -- sh -c 'cd; NODE=${myTarget}; LOM=${myTarget/\./lo.}; SHORTNODE=${myTarget/.*/}
     echo NODE=\$NODE SHORTNODE=\$SHORTNODE ILO=\$ILO; 
 
     # Use pattern matching to determine the class of system you are accessing
