@@ -170,7 +170,7 @@ function iloTryToGetConsole() {
 # Main ()
 
 HOST=$1
-lomTryToGetConsole $HOST
+iloTryToGetConsole $HOST
 
 exit 0
 
