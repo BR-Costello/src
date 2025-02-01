@@ -98,11 +98,13 @@ function iloTryToGetConsole() {
     # Remove these comments from the ssh command prior to running, if there are any issues
     # Get the passwords, the below stanza grabs: 
     # 1. expected password for the ilo
-    # 2. factory default password for the ilo if it has not yet been set (motherboard replacement)
-    # 3. console password for the system which may be stuck in single user mode
+    # 2. generic password for the ilo if the expected password isn't working
+    # 3. factory default password for the ilo if it has not yet been set (motherboard replacement)
+    # 4. console password for the system which may be stuck in single user mode
     
-    password=\$($vaultCmd --action=get --secret_name=${serviceType}-\${target}ilo-root); password2=\$($vaultCmd --action=get --secret_name=${serviceType}_default);
-    consolePass=\$($vaultCmd --action=get --secret_name=${serviceType}-\$target-root);
+    password=\$($vaultCmd --action=get --secret_name=${serviceType}-\${target}ilo-root) 
+    password2=\$($vaultCmd --action=get --secret_name=${serviceType}_default)
+    consolePass=\$($vaultCmd --action=get --secret_name=${serviceType}-\$target-root)
 
     /usr/bin/expect -c \"set pwlist [list \$password \$password2 \$factoryDefaultPassword \$consolePass]; set timeout 30;
       for {set index 0} {\\\$index < [llength \\\$pwlist]} {incr index} {
