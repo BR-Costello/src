@@ -41,7 +41,7 @@
 #	   and if that is successful, it will attempt to log you into the console using the vault password for the console
 #	   providing an interactive shell to the user.
 #	   In both authn cases, it will try "default" passwords as provided from the vault.
-#	   For the LOM it will also try the factory default, ie. to assist with recent MOBO replacements.
+#	   For the LOM/ILO it will also try the factory default, ie. to assist with recent MOBO replacements.
 #
 #	Use this, for example, when a server crashes and is not accessible via normal network traffic, it will automate
 #	   authentication processes via lights out management interfaces allowing for very fast remediation.
@@ -89,7 +89,7 @@ function iloTryToGetConsole() {
   local regionAD=${myTarget:0:4}
 
   # The long command below pipes the expect code into the endpoint and executes it there
-  ssh -t ${regionAD}mgmt "sudo -u root -- sh -c 'cd; NODE=${myTarget}; LOM=${myTarget/\./lo.}; SHORTNODE=${myTarget/.*/}
+  ssh -t ${regionAD}mgmt "sudo -u root -- sh -c 'cd; NODE=${myTarget}; ILO=${myTarget/\./lo.}; SHORTNODE=${myTarget/.*/}
     echo NODE=\$NODE SHORTNODE=\$SHORTNODE ILO=\$ILO; 
 
     # Use pattern matching to determine the class of system you are accessing
@@ -108,7 +108,7 @@ function iloTryToGetConsole() {
 
     /usr/bin/expect -c \"set pwlist [list \$password \$password2 \$factoryDefaultPassword \$consolePass]; set timeout 30;
       for {set index 0} {\\\$index < [llength \\\$pwlist]} {incr index} {
-        spawn ssh -o ConnectTimeout=7 root@\$LOM 
+        spawn ssh -o ConnectTimeout=7 root@\$ILO 
         expect {
           \\\"assword: \\\" { 
             send -- \\\"[lindex \\\$pwlist \\\$index]\\r\\\"; 
@@ -160,10 +160,10 @@ function iloTryToGetConsole() {
       catch wait result
     }
   \"; 
-  HOST=$myTarget LOM=${myTarget/\./lo.} NODE=$NODE bash -l'" # <-- This provides a bash session on the management server for additional debugging.
+  HOST=$myTarget ILO=${myTarget/\./lo.} NODE=$NODE bash -l'" # <-- This provides a bash session on the management server for additional debugging.
   
   # commented the line below so that the password variables aren't exposed via the ps command on the management system (you are using zero-trust-bastions, right?, Right?)
-  # password=\$password password2=\$password2 consolePass=\$consolePass HOST=$myTarget LOM=${myTarget/\./lo.} NODE=\$NODE bash -l'" # <-- set these variables for the management environment, access via: echo $password...
+  # password=\$password password2=\$password2 consolePass=\$consolePass HOST=$myTarget ILO=${myTarget/\./lo.} NODE=\$NODE bash -l'" # <-- set these variables for the management environment, access via: echo $password...
   # The preceeding line allows you to set environment variables for the bash session, which is helpful during troubleshooting, however the tradeoff is that the program is less secure.
 }
 
