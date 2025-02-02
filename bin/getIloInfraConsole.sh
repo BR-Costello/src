@@ -55,45 +55,33 @@
 #       I have an example written in python as well, but this method has shown better reliability
 #
 
-
-# Make sure these are set and valid below
-# serviceType, class1 class2  etc. 
-
-
-#serviceType="myTestServiceType"
-serviceType="superSalad"
-
-#factoryDefaultPassword="cantgetin"
-factoryDefaultPassword="cantgetin"
+prefix="btrfs"
 
 # Command or procedure required to retrieve the passwords securely.
 # Password retrieval method varies widely among platform, this example uses a cloud vault service for managing secrets
 #vaultCmd="/path/to/command/getSecrets.py"
 vaultCmd="getSecrets.py"
 
+# iloUser will be admin or root or sys
+iloUser="admin"
+
+#factoryDefaultPassword="cantgetin"
+factoryDefaultPassword="cantgetin"
+
 # This will need to be tailored to your specific environment
 # Grab the standard password, and the default password if the current password is not set to the expected value
-# password=\$($vaultCmd --action=get --secret_name=${serviceType}-\${target}lom-root); password2=\$($vaultCmd --action=get --secret_name=${serviceType}-default);
-# consolePass=\$($vaultCmd --action=get --secret_name=${serviceType}-\$target-root);
+# password=\$($vaultCmd --action=get --secretName=${prefix}-\${target}-$iloUser); password2=\$($vaultCmd --action=get --secretName=${prefix}-default);
+# consolePass=\$($vaultCmd --action=get --secretName=${prefix}-\$target-root);
 #
-# The following will allow to specify different types of targets, you should set those if the are needed  
-# We have two classes of physical endpoint servers and the secrets are discreet and separate
-# if [ \${NODE:9:5} = $class1 ]; then target=dell; elif [ \${NODE:9:5} = $class2 ]; then target=compute; else echo skipping; exit; fi;
-class1="stg"; match1="stg"
-class2="compute"; match2="compute"
-
 
 function iloTryToGetConsole() {
 
   local myTarget=$1
-  local regionAD=${myTarget:0:4}
+  local regionAD=${myTarget:0:4} # <- This will determine the region that the management host lives in
 
   # The long command below pipes the expect code into the endpoint and executes it there
-  ssh -t ${regionAD}mgmt "sudo -u root -- sh -c 'cd; NODE=${myTarget}; ILO=${myTarget/\./lo.}; SHORTNODE=${myTarget/.*/}
+  ssh -t ${regionAD}mgmt "sudo -u root -- sh -c 'cd; NODE=${myTarget}; ILO=${myTarget/\./lom.}; SHORTNODE=${myTarget/.*/}
     echo NODE=\$NODE SHORTNODE=\$SHORTNODE ILO=\$ILO; 
-
-    # Use pattern matching to determine the class of system you are accessing
-    if [ \${NODE:9:5} = $match1 ]; then target=$class1; elif [ \${NODE:9:5} = $match2 ]; then target=$class2; else echo skipping; exit; fi;
 
     # Remove these comments from the ssh command prior to running, if there are any issues
     # Get the passwords, the below stanza grabs: 
@@ -102,32 +90,25 @@ function iloTryToGetConsole() {
     # 3. factory default password for the ilo if it has not yet been set (motherboard replacement)
     # 4. console password for the system which may be stuck in single user mode
     
-    password=\$($vaultCmd --action=get --secret_name=${serviceType}-\${target}ilo-root) 
-    password2=\$($vaultCmd --action=get --secret_name=${serviceType}_default)
-    consolePass=\$($vaultCmd --action=get --secret_name=${serviceType}-\$target-root)
+    password=\$($vaultCmd --action=get --secretName=${prefix}-ilo-$iloUser) 
+    password2=\$($vaultCmd --action=get --secretName=${prefix}-default)
+    consolePass=\$($vaultCmd --action=get --secretName=${prefix}-root)
 
     /usr/bin/expect -c \"set pwlist [list \$password \$password2 \$factoryDefaultPassword \$consolePass]; set timeout 30;
       for {set index 0} {\\\$index < [llength \\\$pwlist]} {incr index} {
-        spawn ssh -o ConnectTimeout=7 root@\$ILO 
+        spawn ssh -o ConnectTimeout=7 ${iloUser}@\$ILO 
         expect {
           \\\"assword: \\\" { 
             send -- \\\"[lindex \\\$pwlist \\\$index]\\r\\\"; 
-            send_user -- \\\"[lindex \\\$pwlist \\\$index]\\n\\\"; 
             expect  { 
               \\\".*> \\\" { 
-                send \\\"show /System/Open_Problems\\r\\\"; 
-                expect -re \\\".*> \\\"; send \\\"show -l all /SYS fault_state==Faulted type fru_serial_number type ipmi_name  fru_part_number -t\\r\\\"; 
-                expect -re \\\".*> \\\"; send \\\"show /SYS/LOCATE | value\\r\\\"; 
-                expect -re \\\".*> \\\"; send \\\"show /SYS | product_name power_state product_serial_number\\r\\\"; 
-                expect -re \\\".*> \\\";  send \\\"show /SP/sessions\\r \\\"; 
-                expect -re \\\".*> \\\"; send_user \\\"NOTE: delete /SP/sessions/id\\n\\\"; send \\\"\\r\\\"; send \\\"start -script /SP/console\\r\\\"; 
                 expect -re \\\".* ESC \\\"; send \\\"\\r\\\"; 
                 expect { 
                   \\\"# \\\" { send_user \\\"You might be in, hit enter\\n\\\"; interact; break }
                   \\\"ogin: \\\" {
-                    send \\\"root\\r\\\"; expect \\\"assword: \\\"; send \\\"[lindex \\\$pwlist end]\\r\\\";
+                    send \\\"$iloUser\\r\\\"; expect \\\"assword: \\\"; send \\\"[lindex \\\$pwlist end]\\r\\\";
                     expect { 
-                      \\\"root@\$SHORTNODE\\\" { send_user \\\"\\nFound root@\$SHORTNODE, should be interactive\\n\\\"; send \\\"\\r\\\"; interact; break } 
+                      \\\"$iloUser@\$SHORTNODE\\\" { send_user \\\"\\nFound root@\$SHORTNODE, should be interactive\\n\\\"; send \\\"\\r\\\"; interact; break } 
                       \\\"Last login: \\\" { send_user \\\"Found Last login, should be interactive\\n\\\"; interact; break }
                       \\\"login:\\\" { 
                         send \\\"root\\r\\\"; 
@@ -147,12 +128,12 @@ function iloTryToGetConsole() {
           }
           }
           \\\"yes/no)?\\\"  { send \\\"yes\\r\\\"; set index -1; continue } 
-	        \\\"ssh: Could not resolve hostname\\\"  { send_user \\\"Check the hostname and try again\\n\\\"; interact; break } 
+	  \\\"ssh: Could not resolve hostname\\\"  { send_user \\\"Check the hostname and try again\\n\\\"; interact; break } 
           \\\"Connection refused\\\" { set index -1; sleep 7; continue } 
           \\\"Connection timed out\\\" { set index -1; continue } 
-          \\\"Offending RSA key in\\\" { send_user \\\"correcting ssh key in ~/.known_hosts\\n\\\"; send \\\"ssh-keygen -R \$IOM\\r\\\"; set index -1; continue }
+	  \\\"Offending RSA key in\\\" { send_user \\\"correcting ssh key in ~/.known_hosts\\n\\\"; send \\\"ssh-keygen -R \$ILO\\r\\\"; set index -1; continue } 
           \\\"password\\\" { close; continue }
-          timeout { send_user \\\"timed out, dropping to interactive\\\"; interact; break }
+	  timeout { send_user \\\"timed out, dropping to interactive\\\"; interact; break }
        }
      
     }
