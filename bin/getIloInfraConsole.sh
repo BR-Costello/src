@@ -102,6 +102,7 @@ function iloTryToGetConsole() {
             send -- \\\"[lindex \\\$pwlist \\\$index]\\r\\\"; 
             expect  { 
               \\\".*> \\\" { 
+	        send -- \\\"console-view; connect interconnect EM1FFFF101 1 1 \\r\\\";
                 expect -re \\\".* ESC \\\"; send \\\"\\r\\\"; 
                 expect { 
                   \\\"# \\\" { send_user \\\"You might be in, hit enter\\n\\\"; interact; break }
