@@ -155,5 +155,5 @@ iloTryToGetConsole $HOST
 
 exit 0
 
-
+# Ignore below:
 # bigLongSha256sumString run: tail -1 thisfile;  cat thisfile | head -n -1 | sha256sum should display the file, otherwise it has been altered
