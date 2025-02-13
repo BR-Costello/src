@@ -48,11 +48,11 @@
 #
 #	It does not display any passwords on the command line
 #
-#	Prerequisites for the management server: bash4, Expect (tcl), ssh with connectivity to the management host's lights out management
+#	Prerequisites for the management server: bash4, Expect (tcl), ssh with connectivity to the target host's lights out management
 #          Expect is usually distributed with RHEL, BSD-like environments, Solaris, Darwin 
 #	   local ssh: ~/.ssh/config file with automatic ssh through a bastion and into a regional management host
 #
-#       I have an example written in python as well, but this method has shown better reliability
+#       I have an example written in python as well, but this method has shown better reliability and portability with no reliance on any modules
 #
 
 prefix="btrfs"
