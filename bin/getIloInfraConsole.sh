@@ -144,9 +144,6 @@ function iloTryToGetConsole() {
   \"; 
   HOST=$myTarget ILO=${myTarget/\./lo.} NODE=$NODE bash -l'" # <-- This provides a bash session on the management server for additional debugging.
   
-  # commented the line below so that the password variables aren't exposed via the ps command on the management system (you are using zero-trust-bastions, right?, Right?)
-  # password=\$password password2=\$password2 consolePass=\$consolePass HOST=$myTarget ILO=${myTarget/\./lo.} NODE=\$NODE bash -l'" # <-- set these variables for the management environment, access via: echo $password...
-  # The preceeding line allows you to set environment variables for the bash session, which is helpful during troubleshooting, however the tradeoff is that the program is less secure.
 }
 
 # Main ()
