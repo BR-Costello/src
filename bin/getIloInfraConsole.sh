@@ -30,12 +30,14 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # 	An example showing automation for accessing a server over ssh into a remote management host and then into the ilo of 
-# 	   the machine when networking is offline, side channel
+# 	   the machine and attempts to gain console access when networking is offline, side channel
 # 	   If it is able to access the ilo, it will try to use the console password, obtained from the vault service 
 # 	   and it will drop you into an interactive root shell.
 # 	   If the parameters are correct, this should succeed, however it requires extensive customization with respect
 # 	   to the particular environment. In other words, DO NOT EXECUTE ON PRODUCTION!!
 # 	   Also, do not execute until you have a good idea what the code does.
+#          
+#       |Workstation| -> |bastion| -> |managemnt host| -> |target ilo| -> |target root console|
 #
 #	This script will try to log into the Lights Out Management (LOM) interface of a host using vault passwords
 #	   and if that is successful, it will attempt to log you into the console using the vault password for the console
